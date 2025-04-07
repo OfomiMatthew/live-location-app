@@ -1,0 +1,26 @@
+body {
+  font-family: sans-serif;
+  text-align: center;
+}
+
+#map {
+  height: 500px;
+  width: 80%;
+  margin: 20px auto;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+}
+
+#locate-btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #3399ff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#locate-btn:hover {
+  background-color: #0077cc;
+}

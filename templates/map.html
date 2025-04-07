@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Track User</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h2>Tracking ID: {{ user_id }}</h2>
+    <div id="map"></div>
+
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <script>
+        const userId = "{{ user_id }}";
+        const socket = io();
+
+        // Join user's room
+        socket.emit('join', { user_id: userId });
+
+        let map = L.map('map').setView([0, 0], 2);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+
+        let marker;
+
+        function updateLocation(lat, lon) {
+            if (marker) {
+                marker.setLatLng([lat, lon]);
+            } else {
+                marker = L.marker([lat, lon]).addTo(map)
+                    .bindPopup("User's Location").openPopup();
+            }
+            map.setView([lat, lon], 15);
+        }
+
+        // Send my location (if you are the owner)
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition((position) => {
+                socket.emit('send_location', {
+                    user_id: userId,
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                });
+            });
+        }
+
+        // Receive updated location
+        socket.on('receive_location', (data) => {
+            updateLocation(data.latitude, data.longitude);
+        });
+    </script>
+</body>
+</html>
